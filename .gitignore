@@ -1,5 +1,6 @@
 .gradle/
 build/
+releases/
 bin/
 logs
 
@@ -16,3 +17,11 @@ run/
 .code/
 .vscode/
 logs/latest.log
+
+# Local maintenance notes and credentials
+.env
+.env.*
+*.bundle
+audit/
+VERIFICATION.md
+publicatie-*.md

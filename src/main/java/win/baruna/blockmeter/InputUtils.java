@@ -12,7 +12,7 @@ public interface InputUtils {
     }
 
     default boolean isKey(int key) {
-        return InputConstants.isKeyDown(window(), key);
+        return InputConstants.isKeyDown(key);
     }
 
     default boolean isShift() {

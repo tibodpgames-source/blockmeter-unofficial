@@ -1,40 +1,51 @@
-![Java CI with Gradle](https://github.com/ModProg/BlockMeter/workflows/Java%20CI%20with%20Gradle/badge.svg) 
-[![Modrinth](https://img.shields.io/modrinth/dt/blockmeter?label=Modrinth)](https://modrinth.com/mod/blockmeter)
-[![Github](https://cf.way2muchnoise.eu/blockmeterfabric.svg)](https://www.curseforge.com/minecraft/mc-mods/blockmeterfabric)
+# Block Meter Unofficial
 
-# BlockMeter
+A Fabric mod for measuring block distances and boxes in Minecraft Java Edition 26.3.
 
-This is the public repository for the Block Meter a Fabric Mod to measure Boxes in Minecraft.
+This is an unofficial port of [Block Meter](https://modrinth.com/mod/blockmeter), based on [ModProg/BlockMeter](https://github.com/ModProg/BlockMeter) at commit `5df2024bebb79bc7c77be1dbfdc5e6b3f434ebe3`. It is not endorsed by the original authors. Their credits, source history and [MIT license](LICENSE) are preserved.
 
-# Compile
+Download the current beta from [GitHub Releases](https://github.com/tibodpgames-source/blockmeter-unofficial/releases).
 
-- Get a version of gradle that's at least 4.10.2
-- `git clone <repo>`
-- `git branch -r` to see available branches
-- `git checkout fabric_1_16` to select your branch
-- `git submodule init`
-- `git submodule update`
-- `/path/to/gradle build`
+## Requirements
 
-## How to compile this mod
+- Minecraft Java Edition 26.3
+- Java 25
+- Fabric Loader 0.19.5 or later
+- Fabric API for Minecraft 26.3, version 0.161.0 or later
+- Mod Menu 21 for Minecraft 26.3 is optional
 
-Because I created several mods, which have some things in common, the structure of my mods is a bit different from the example mod that Fabric or Forge provide.
+Cloth Config 26.3.159 is bundled. Install only one Block Meter version at a time.
 
-In particular, I don't want the gradle files to be duplicated into every single mod repository, and some common files that contain version info for Fabric, its tools, and some library mods, have been moved to a (common) submodule.
+## Controls
 
-## Prerequisites
+| Control | Action |
+| --- | --- |
+| M | Activate or disable measuring with the held item |
+| Right-click two blocks | Set opposite corners of a measurement box |
+| Mouse button 4 | Select corners without assigning an item |
+| Left Alt | Open colors and options while measuring |
+| Shift + M | Remove the last box |
+| Ctrl + M | Clear all boxes |
 
-### These Versions should work (are used in GitHub CI)
+Bindings can be changed in Minecraft's Controls menu. Local measurements do not require a server installation. Sharing measurements requires a compatible server installation.
 
-| Software       | Version              |
-| -------------- | -------------------- |
-| Java (OpenJDK) | 17, 18               |
-| Gradle         | ./gradlew or current |
+## Changes for 26.3
 
-## Versionfiles submodule
+- Use Minecraft's SDL-compatible keyboard and mouse input.
+- Fix the crash caused by the old unbound-key value in beta.1.
+- Normalize invalid saved keyboard codes for Block Meter's own bindings.
+- Skip measuring ticks outside a loaded world or while a menu holds the mouse.
+- Check server support before sending shared measurements.
+- Respect the setting to keep boxes when disabling measuring.
 
-All my mods use the same repository of files that match MineCraft, Fabric, and common libraries versions. This is included in the mod repository as a Versionfiles submodule, and you should get it when cloning the repo. Run `git submodule init`, then `git submodule update` to get the current version of the files. Do this after selecting your branch, see below.
+Beta.2 passed the build and all 7 regression tests. The 26.3 port, tests and documentation were developed with coding-assistant help.
 
-## Compiling the mod
+## Build
 
-There are branches for the various versions of MineCraft that are supported by the mod. Run `git branch -r` to see which branches there are, then `git checkout branchname` without the `origin/` part, for example, `git checkout fabric_1_16`.
+Use JDK 25 and the included Gradle wrapper:
+
+```sh
+./gradlew --no-daemon --max-workers=2 test build
+```
+
+The mod and sources JARs are written to `build/libs/`.

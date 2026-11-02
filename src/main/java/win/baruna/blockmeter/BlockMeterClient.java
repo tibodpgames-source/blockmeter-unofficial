@@ -29,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.glfw.GLFW;
 import win.baruna.blockmeter.gui.EditBoxGui;
 import win.baruna.blockmeter.gui.OptionsGui;
 import win.baruna.blockmeter.gui.SelectBoxGui;
@@ -93,7 +92,6 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
     public void disable() {
         active = false;
         currentItem = null;
-        boxes.clear();
         if (confMgr.getConfig().deleteBoxesOnDisable) {
             clear();
         }
@@ -151,6 +149,7 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
     }
 
     public void renderOverlay(LevelRenderContext context) {
+        if (Minecraft.getInstance().player == null) return;
         final Identifier currentDimension = getPlayer().level().dimension().identifier();
 
         final ModConfig cfg = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
@@ -198,13 +197,13 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
     @Override
     public void onInitializeClient() {
         var category = KeyMapping.Category.register(Identifier.parse("category.blockmeter.key"));
-        final KeyMapping keyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.blockmeter.assign", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, category));
-        final KeyMapping keyBindingMenu = new KeyMapping("key.blockmeter.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, category);
+        final KeyMapping keyBinding = KeyMappingHelper.registerKeyMapping(new BlockMeterKeyMapping("key.blockmeter.assign", InputConstants.Type.KEYBOARD, InputConstants.KEY_M, category));
+        final KeyMapping keyBindingMenu = new BlockMeterKeyMapping("key.blockmeter.menu", InputConstants.Type.KEYBOARD, InputConstants.KEY_LALT, category);
         KeyMappingHelper.registerKeyMapping(keyBindingMenu);
 
-        final KeyMapping keyBindingMeasureWithItem = new KeyMapping("key.blockmeter.useItem", -1, category);
+        final KeyMapping keyBindingMeasureWithItem = new BlockMeterKeyMapping("key.blockmeter.useItem", InputConstants.Type.KEYBOARD, InputConstants.UNKNOWN.getValue(), category);
         KeyMappingHelper.registerKeyMapping(keyBindingMeasureWithItem);
-        final KeyMapping keyBindingMeasure = new KeyMapping("key.blockmeter.measure", InputConstants.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_4, category);
+        final KeyMapping keyBindingMeasure = new BlockMeterKeyMapping("key.blockmeter.measure", InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_4, category);
         KeyMappingHelper.registerKeyMapping(keyBindingMeasure);
 
         LevelRenderEvents.BEFORE_GIZMOS.register(this::renderOverlay);
@@ -219,6 +218,10 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
         // (Issue in AutoConfig https://github.com/shedaniel/AutoConfig/issues/13)
         confMgr = (ConfigManager<ModConfig>) AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
         ClientTickEvents.START_CLIENT_TICK.register(e -> {
+            if (e.player == null || e.level == null || !e.mouseHandler.isMouseGrabbed()) {
+                measureWithItemDown.set(false);
+                return;
+            }
             if (keyBinding.consumeClick()) {
                 if (isShift()) {
                     if (undo()) getPlayer().sendOverlayMessage(Component.translatable("blockmeter.clearLast"));
@@ -253,18 +256,9 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
             }
 
             if (this.active) {
-                var key = KeyMappingHelper.getBoundKeyOf(keyBindingMeasureWithItem);
-                var pressed = false;
-                if (key.getValue() == -1) {
-                    pressed = GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().handle(), 1) == 1;
-                } else {
-                    switch (key.getType()) {
-                        case KEYSYM, SCANCODE ->
-                                pressed = GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), key.getValue()) == 1;
-                        case MOUSE ->
-                                pressed = GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().handle(), key.getValue()) == 1;
-                    }
-                }
+                boolean pressed = keyBindingMeasureWithItem.isUnbound()
+                        ? e.mouseHandler.isRightPressed()
+                        : keyBindingMeasureWithItem.isDown();
                 if (pressed) {
                     if (!measureWithItemDown.get()) {
                         measureWithItemDown.set(true);
@@ -367,6 +361,7 @@ public class BlockMeterClient implements ClientModInitializer, InputUtils {
      */
     private void sendBoxList() {
         if (!AutoConfig.getConfigHolder(ModConfig.class).getConfig().sendBoxes) return;
+        if (Minecraft.getInstance().getConnection() == null || !ClientPlayNetworking.canSend(BoxPayload.ID)) return;
         ClientPlayNetworking.send(new BoxPayload(Map.of("", new ArrayList<>(boxes))));
     }
 
