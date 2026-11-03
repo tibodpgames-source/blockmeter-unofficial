@@ -2,9 +2,11 @@
 
 A Fabric mod for measuring block distances and boxes in Minecraft Java Edition 26.3.
 
-This is an unofficial port of [Block Meter](https://modrinth.com/mod/blockmeter), based on [ModProg/BlockMeter](https://github.com/ModProg/BlockMeter) at commit `5df2024bebb79bc7c77be1dbfdc5e6b3f434ebe3`. It is not endorsed by the original authors. Their credits, source history and [MIT license](LICENSE) are preserved.
+**[Download the mod (.jar)](https://github.com/tibodpgames-source/blockmeter-unofficial/releases/download/v22.1.0-beta.2-26.3/BlockMeter-22.1.0-beta.2-26.3.jar)**
 
-Download the current beta from [GitHub Releases](https://github.com/tibodpgames-source/blockmeter-unofficial/releases).
+Place the JAR in your Minecraft `mods` folder. Requires Fabric and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. Replace older Block Meter versions.
+
+This is an unofficial port of [Block Meter](https://modrinth.com/mod/blockmeter), based on [ModProg/BlockMeter](https://github.com/ModProg/BlockMeter) at commit `5df2024bebb79bc7c77be1dbfdc5e6b3f434ebe3`. It is not endorsed by the original authors. Their credits, source history and [MIT license](LICENSE) are preserved.
 
 ## Requirements
 
